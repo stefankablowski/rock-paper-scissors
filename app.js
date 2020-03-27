@@ -12,35 +12,33 @@ app.get('/', (req, res) => {
     res.sendFile('index.html', { root: './public' });
 });
 
-const ingame = io.of('/ingame');
+/* Game variables */
+const playerQueue = [];
+const rooms = [];
 
-ingame.on('connection', function(socket) {
-    console.log(`socket with id ${socket.id} joined ingame namespace`);
-
-    //disconnect
-    socket.on('disconnect', function() {
-        console.log(`Socket with id ${socket.id} left ingame namespace.`);
-    });
-})
+/*Socket.io*/
 
 const gameNSP = io.of('/gameNSP');
 
 /* Custom namespace */
 gameNSP.on('connection', function(socket) {
-    console.log(`socket with id ${socket.id} joined pending namespace`);
+    console.log(`socket with id ${socket.id} joined the server`);
 
-    //disconnect
-    socket.on('disconnect', function() {
-        console.log(`Socket with id ${socket.id} left pending namespace.`);
+    socket.on('request_friend_game', function(roomname) {
+        // if room exists: join the room
+        // else: create new room
     });
-});
 
-/* Global namespace */
-io.on('connection', function(socket) {
-    console.log(`socket with id ${socket.id} connected`);
+
+    socket.on('request_random_game', function() {
+        // if someone in queue: take first out of queue
+        //  create game with me and him
+
+        // if queue empty: go to queue
+    });
 
     //disconnect
     socket.on('disconnect', function() {
-        console.log(`Socket with id ${socket.id} disconnected.`);
+        console.log(`Socket with id ${socket.id} left the server.`);
     });
 });
