@@ -25,12 +25,14 @@ gameNSP.on('connection', function(socket) {
     console.log(`socket with id ${socket.id} joined the server`);
 
     socket.on('request_friend_game', function(roomname) {
+        console.log(`socket with id ${socket.id} wants to play vs a friend in room ${roomname}`);
         // if room exists: join the room
         // else: create new room
     });
 
 
     socket.on('request_random_game', function() {
+        console.log(`socket with id ${socket.id} wants to play random`);
         // if someone in queue: take first out of queue
         //  create game with me and him
 
