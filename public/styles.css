@@ -51,6 +51,8 @@ input {
     height: 5vw;
     line-height: 5vw;
     text-align: center;
+    font-size: 3vw;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
 #accept-decline-bar {
