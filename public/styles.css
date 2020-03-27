@@ -5,15 +5,22 @@
     background-color: rgba(120, 180, 148, 1);
 }
 
+#game-wrapper {
+    transform: scale(0.5);
+}
+
 #play-random {}
 
 #play-friend {}
 
 .btn {
+    position: relative;
     display: block;
     border-style: solid;
     border-width: 1vw;
     margin: 7vw;
+    margin-top: 3vw;
+    margin-bottom: 3vw;
     padding: 3vw;
     background-color: rgba( 75, 150, 110, 1);
     text-align: center;
@@ -24,6 +31,66 @@
 
 .btn:hover {
     background-color: rgba( 15, 90, 50, 1);
+}
+
+#enter-name-frame {
+    background-color: transparent;
+    position: relative;
+    top: 0vw;
+    left: 0vw;
+    font-size: 3vw;
+    width: 30vw;
+    margin: auto;
+    margin-top: 2vw;
+}
+
+input {
+    background-color: rgba(120, 180, 148, 1);
+    width: 100%;
+    border-style: none;
+    height: 5vw;
+    line-height: 5vw;
+    text-align: center;
+}
+
+#accept-decline-bar {
+    position: absolute;
+    right: 0;
+    top: 0;
+    background-color: transparent;
+}
+
+#accept {}
+
+#decline {
+    background-color: darkred;
+}
+
+.square-btn {
+    background-color: rgba( 69, 115, 19, 1);
+    width: 2vw;
+    height: 2vw;
+    position: relative;
+    margin: 2vw;
+    padding: 4.5vw;
+    border-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.show {
+    display: block;
+}
+
+.hide {
+    display: none;
+}
+
+@media only screen and (max-width:1000px) {
+    #game-wrapper {
+        transform: scale(1.0);
+    }
 }
 
 
