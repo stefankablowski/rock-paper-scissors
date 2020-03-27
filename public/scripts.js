@@ -20,8 +20,8 @@ function playRandom() {
 }
 
 //  after entering a room name
-function playFriend(roomname) {
-    console.log(`i want to play in room ${roomname}`)
+function playFriend(playername, roomname) {
+    console.log(`${playername} wants to play in room ${roomname}`)
     socket.emit('request_friend_game', roomname);
 }
 
@@ -34,7 +34,7 @@ const bar = {
         $('#accept-decline-bar').classList.add('hide');
     },
     accept: () => {
-        playFriend($('#name-input').value);
+        playFriend($('#player-input').value, $('#name-input').value);
     },
     decline: () => {
         roomInput.deleteContent();
@@ -43,14 +43,11 @@ const bar = {
 
 const roomInput = {
     checkContent: () => {
-        if ($('#name-input').value === '') {
+        roomInput.sanitize();
+        playerInput.sanitize();
+        if ($('#name-input').value === '' || $('#player-input').value === '') {
             bar.hide();
         } else {
-            // sanitize input
-            $('#name-input').value = $('#name-input').value.replace(/[^a-zA-Z0-9]/g, '_');
-            if ($('#name-input').value.length > 16) {
-                $('#name-input').value = $('#name-input').value.slice(0, 16);
-            }
             bar.show();
         }
     },
@@ -64,10 +61,11 @@ const roomInput = {
     toggle: () => {
         if ($('#enter-name-frame').classList.contains('hide')) {
             roomInput.show();
-            roomInput.focus();
+            playerInput.focus();
         } else {
             roomInput.hide();
             roomInput.deleteContent();
+            playerInput.deleteContent();
         }
     },
     click: (event) => {
@@ -78,6 +76,42 @@ const roomInput = {
     },
     deleteContent: () => {
         $('#name-input').value = '';
+    },
+    sanitize: (spoiledString) => {
+        $('#name-input').value = $('#name-input').value.replace(/[^a-zA-Z0-9]/g, '_');
+        if ($('#name-input').value.length > 16) {
+            $('#name-input').value = $('#name-input').value.slice(0, 16);
+        }
+    },
+    onEnter: (event) => {
+        if (event.keyCode === 13) { //On Enter pressed
+            bar.accept();
+        }
+
+    }
+}
+
+const playerInput = {
+    focus: () => {
+        $('#player-input').focus();
+    },
+    click: (event) => {
+        event.stopPropagation();
+    },
+    sanitize: (spoiledString) => {
+        $('#player-input').value = $('#player-input').value.replace(/[^a-zA-Z0-9]/g, '_');
+        if ($('#player-input').value.length > 16) {
+            $('#player-input').value = $('#player-input').value.slice(0, 16);
+        }
+    },
+    deleteContent: () => {
+        $('#player-input').value = '';
+    },
+    onEnter: (event) => {
+        if (event.keyCode === 13) { //On Enter pressed
+            roomInput.focus();
+        }
+
     }
 }
 
@@ -94,14 +128,26 @@ function decline() {
 
 function onPageLoad() {
     roomInput.deleteContent();
+    playerInput.deleteContent();
 }
 
+// keep text input sanitized and accept-bar up to date
 $('#name-input').addEventListener('input', roomInput.checkContent);
+$('#player-input').addEventListener('input', roomInput.checkContent);
+
+// prevent box from collapsing when clicking on input field
 $('#name-input').addEventListener('click', roomInput.click);
+$('#player-input').addEventListener('click', playerInput.click);
+
+// jump to next textinput
+$('#player-input').addEventListener('keydown', playerInput.onEnter);
+$('#name-input').addEventListener('keydown', roomInput.onEnter);
+
+// accept and decline button functionality
 $('#accept').addEventListener('click', bar.accept);
 $('#decline').addEventListener('click', bar.decline);
 
-// add event listener
+// main menu button functionality
 $('#play-random').addEventListener('click', playRandom);
 $('#play-friend').addEventListener('click', roomInput.toggle);
 

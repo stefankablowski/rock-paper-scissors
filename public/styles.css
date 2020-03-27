@@ -62,14 +62,23 @@ input {
     background-color: transparent;
 }
 
-#accept {}
+#accept {
+    background-color: rgba( 69, 115, 19, 1);
+}
+
+#accept:hover {
+    background-color: lawngreen;
+}
 
 #decline {
     background-color: darkred;
 }
 
+#decline:hover {
+    background-color: crimson;
+}
+
 .square-btn {
-    background-color: rgba( 69, 115, 19, 1);
     width: 2vw;
     height: 2vw;
     position: relative;
@@ -79,6 +88,9 @@ input {
     display: flex;
     align-items: center;
     justify-content: center;
+    border-width: 1vw;
+    border-color: black;
+    border-style: solid;
 }
 
 .show {
