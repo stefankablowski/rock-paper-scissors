@@ -14,6 +14,10 @@ socket.on('invitation-sent', function(userName, userId) {
     console.log(`${userName} wants to play with you! (userid:${userId})`);
 });
 
+socket.on('inform', (message) => {
+    console.log(message);
+});
+
 function playRandom() {
     console.log('wanna play random')
     socket.emit('request_random_game');
@@ -22,7 +26,7 @@ function playRandom() {
 //  after entering a room name
 function playFriend(playername, roomname) {
     console.log(`${playername} wants to play in room ${roomname}`)
-    socket.emit('request_friend_game', roomname);
+    socket.emit('request_friend_game', playername, roomname);
 }
 
 /* Accept decline bar */

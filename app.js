@@ -1,4 +1,6 @@
 const express = require('express');
+const Room = require('./model/room');
+const Player = require('./model/player');
 
 //Setup server
 let app = require('./expr');
@@ -21,13 +23,46 @@ const rooms = [];
 const gameNSP = io.of('/gameNSP');
 
 /* Custom namespace */
-gameNSP.on('connection', function(socket) {
+gameNSP.on('connection', (socket) => {
     console.log(`socket with id ${socket.id} joined the server`);
 
-    socket.on('request_friend_game', function(roomname) {
-        console.log(`socket with id ${socket.id} wants to play vs a friend in room ${roomname}`);
+    socket.on('request_friend_game', (playername, roomname) => {
+        console.log(`socket with id ${socket.id} (${playername}) wants to play vs a friend in room ${roomname}`);
+
+        // sanitize user input here
+
+        let currentPlayer = new Player(playername, socket.id);
         // if room exists: join the room
+        for (r of rooms) {
+            if (r.name === roomname) {
+                // player already in room?
+                console.log(`${roomname} already exists`)
+                if (!(r.players.find(pl => pl.name === currentPlayer.name))) {
+                    console.log(`player ${playername} joined room ${roomname}`);
+                    r.players.push(currentPlayer);
+
+                    // start the game
+                    if (r.players.length > 1) {
+                        console.log('starting the game');
+                        r.players.forEach(p => {
+                            if (gameNSP.connected[p.socketId]) {
+                                gameNSP.connected[p.socketId].join(`/${roomname}`);
+                                gameNSP.in(`/${roomname}`).emit('inform', 'you are now playing');
+                            }
+
+                        });
+                    }
+                }
+                return;
+            }
+        }
+
         // else: create new room
+        console.log('creating new room');
+        let newRoom = new Room();
+        newRoom.name = roomname;
+        rooms.push(newRoom);
+        newRoom.push(currentPlayer);
     });
 
 
