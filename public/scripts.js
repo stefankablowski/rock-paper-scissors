@@ -1,4 +1,7 @@
+const IMAGE_PATH = './public/img/'
 var socket;
+
+// jQuery fake
 var $ = (element) => document.querySelector(element);
 
 function createConnection() {
@@ -6,6 +9,58 @@ function createConnection() {
         socket.disconnect();
     }
     socket = io('/gameNSP');
+}
+
+function animateHandsUp() {
+    let hands = document.querySelectorAll('.animated-frame');
+    for (hand of hands) {
+        hand.classList.add('up');
+        hand.classList.remove('down');
+    }
+    console.log('hands up');
+}
+
+function animateHandsDown() {
+    let hands = document.querySelectorAll('.animated-frame');
+    for (hand of hands) {
+        hand.classList.remove('up');
+        hand.classList.add('down');
+    }
+    console.log('hands down');
+
+}
+
+function animateHandsNeutral() {
+    let hands = document.querySelectorAll('.animated-frame');
+    for (hand of hands) {
+        hand.classList.remove('up');
+        hand.classList.remove('down');
+    }
+    console.log('hands neutral');
+
+}
+
+function animateHandsFull() {
+    setTimeout(animateHandsDown, 500);
+    setTimeout(animateHandsUp, 1000);
+    setTimeout(animateHandsDown, 1500);
+    setTimeout(animateHandsUp, 2000);
+    setTimeout(animateHandsNeutral, 2500);
+}
+
+function startGame(data) {
+    ingame.show();
+    let playerString = '';
+    for (const [player, choice] of Object.entries(data)) {
+        playerString = playerString + `
+        <div class="player-box">
+        <div class="img-wrapper"><div class="animated-frame"><img src=${IMAGE_PATH}${choice}.png></div></div>
+        <div class="player-label">${player}</div>
+        </div>`
+    }
+    $('#player-list').innerHTML = playerString;
+
+    animateHandsFull();
 }
 
 createConnection();
@@ -119,6 +174,18 @@ const playerInput = {
     }
 }
 
+const ingame = {
+    show: function() {
+        $('#ingame').classList.remove('hide');
+        $('#main-menu').classList.add('hide');
+    },
+    hide: function() {
+        $('#ingame').classList.add('hide');
+        $('#main-menu').classList.remove('hide');
+    }
+
+}
+
 
 
 function accept() {
@@ -133,6 +200,13 @@ function decline() {
 function onPageLoad() {
     roomInput.deleteContent();
     playerInput.deleteContent();
+    // data
+    let playerData = {
+        john: 'scissors',
+        stefan: 'rock'
+    }
+    startGame(playerData);
+
 }
 
 // keep text input sanitized and accept-bar up to date

@@ -6,7 +6,7 @@
 }
 
 #game-wrapper {
-    transform: scale(0.5);
+    transform: scale(1);
 }
 
 #play-random {}
@@ -101,11 +101,72 @@ input {
     display: none;
 }
 
+
+/* Ingame Styles */
+
+#player-list {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 50vw;
+    margin: auto;
+    margin-top: 10vw;
+}
+
+.img-wrapper {
+    height: 30vw;
+    width: 30vw;
+}
+
+.animated-frame>img {
+    background-color: transparent;
+    height: 20vw;
+    cursor: pointer;
+    filter: drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.5));
+}
+
+.animated-frame {
+    transform: translate(0vw, 5vw);
+    transition: transform 0.3s;
+}
+
+.animated-frame.up {
+    transform: translate(0vw, 2.5vw);
+    transition: transform 0.3s ease;
+}
+
+.animated-frame.down {
+    transform: translate(0vw, 7vw);
+    transition: transform 0.3s;
+}
+
+.player-box {
+    height: 50vw;
+}
+
+.animated-frame {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.player-label {
+    text-align: center;
+    font-family: cursive;
+    font-size: 5vw;
+    font-weight: 500;
+}
+
+
+/*
 @media only screen and (max-width:1000px) {
     #game-wrapper {
         transform: scale(1.0);
     }
 }
+*/
 
 
 /* As RGBa codes */
