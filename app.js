@@ -29,29 +29,37 @@ gameNSP.on('connection', (socket) => {
     socket.on('request_friend_game', (playername, roomname) => {
         console.log(`socket with id ${socket.id} (${playername}) wants to play vs a friend in room ${roomname}`);
 
-        // sanitize user input here
+        // TODO: sanitize user input here
 
+        // create new player
         let currentPlayer = new Player(playername, socket.id);
+
         // if room exists: join the room
         for (r of rooms) {
             if (r.name === roomname) {
+
                 // player already in room?
                 console.log(`${roomname} already exists`)
                 if (!(r.players.find(pl => pl.name === currentPlayer.name))) {
-                    console.log(`player ${playername} joined room ${roomname}`);
+
+                    // put player into model room
                     r.players.push(currentPlayer);
+                    console.log(`player ${playername} joined room ${roomname}`);
 
-                    // start the game
-                    if (r.players.length > 1) {
-                        console.log('starting the game');
-                        r.players.forEach(p => {
-                            if (gameNSP.connected[p.socketId]) {
-                                gameNSP.connected[p.socketId].join(`/${roomname}`);
-                                gameNSP.in(`/${roomname}`).emit('inform', 'you are now playing');
-                            }
-
-                        });
+                    // put player into socket.io room
+                    if (gameNSP.connected[currentPlayer.socketId]) {
+                        gameNSP.connected[currentPlayer.socketId].join(`/${roomname}`);
                     }
+
+                    // create lobby object for client
+                    let broadcastResult = {};
+                    for (p of r.players) {
+                        broadcastResult[p.name] = p.state;
+                    }
+
+                    gameNSP.in(`/${roomname}`).emit('lobby_update', broadcastResult);
+
+
                 }
                 return;
             }
@@ -59,11 +67,80 @@ gameNSP.on('connection', (socket) => {
 
         // else: create new room
         console.log('creating new room');
+
+        // create new room, set name, add to model
         let newRoom = new Room();
         newRoom.name = roomname;
         rooms.push(newRoom);
+
+        // put player into room
         newRoom.push(currentPlayer);
+
+        // join player to socket.io room
+        if (gameNSP.connected[currentPlayer.socketId]) {
+            gameNSP.connected[currentPlayer.socketId].join(`/${roomname}`);
+        }
+        let singleBroadcastRes = {}
+        singleBroadcastRes[currentPlayer.name] = false;
+        gameNSP.in(`/${roomname}`).emit('lobby_update', singleBroadcastRes);
+
     });
+
+    socket.on('ready', () => {
+        let roomOfPlayer = null;
+        let currentPlayer
+            // set player state to ready
+        for (r of rooms) {
+            currentPlayer = r.players.find(p => p.socketId === socket.id);
+            if (currentPlayer) {
+                currentPlayer.state = true;
+                roomOfPlayer = r;
+                break;
+            }
+        }
+        // GUARD
+        if (!currentPlayer) { return; }
+
+        // broadcast lobby object to room
+        let allPlayersReady = true;
+        let broadcastResult = {};
+        for (p of roomOfPlayer.players) {
+            broadcastResult[p.name] = p.state;
+            if (p.state === false) {
+                allPlayersReady = false;
+            }
+        }
+        gameNSP.in(`/${roomOfPlayer.name}`).emit('lobby_update', broadcastResult);
+        // start game if all players are ready
+        if (allPlayersReady) {
+            gameNSP.in(`/${roomOfPlayer.name}`).emit('start_game', broadcastResult);
+        }
+    });
+
+    socket.on('unready', () => {
+
+        let roomOfPlayer = null;
+        let currentPlayer = null;
+
+        // find player in rooms
+        for (r of rooms) {
+            currentPlayer = r.players.find(p => p.socketId === socket.id);
+            if (currentPlayer) {
+                currentPlayer.state = true;
+                roomOfPlayer = r;
+                break;
+            }
+        }
+        // GUARD, no player found
+        if (!currentPlayer) { return; }
+
+        // broadcast lobby object to room
+        let broadcastResult = {};
+        for (p of roomOfPlayer.players) {
+            broadcastResult[p.name] = p.state;
+        }
+        gameNSP.in(`/${roomOfPlayer.name}`).emit('lobby_update', broadcastResult);
+    })
 
 
     socket.on('request_random_game', function() {

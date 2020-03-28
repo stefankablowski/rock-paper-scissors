@@ -245,15 +245,16 @@ const lobby = {
 }
 
 function onPageLoad() {
+    display.show('main-menu');
     roomInput.deleteContent();
     playerInput.deleteContent();
     // data
     let playerData = {
-        john: true,
-        stefan: false,
-        marko: true,
-    }
-    startGame(playerData);
+            john: true,
+            stefan: false,
+            marko: true,
+        }
+        //startGame(playerData);
 
 }
 
