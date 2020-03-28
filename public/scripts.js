@@ -43,9 +43,9 @@ function animateHandsNeutral() {
 function animateHandsFull() {
     setTimeout(animateHandsDown, 500);
     setTimeout(animateHandsUp, 1000);
-    setTimeout(animateHandsDown, 1500);
-    setTimeout(animateHandsUp, 2000);
-    setTimeout(animateHandsNeutral, 2500);
+    setTimeout(animateHandsDown, 1400);
+    setTimeout(animateHandsUp, 1800);
+    setTimeout(animateHandsNeutral, 2200);
 }
 
 function startGame(data) {
