@@ -160,6 +160,42 @@ input {
 }
 
 
+/* Lobby styles */
+
+#lobby {}
+
+.get-ready.ready {
+    background-color: red;
+}
+
+.get-ready:before {
+    content: "get ready";
+}
+
+.get-ready.ready::before {
+    content: "cancel";
+}
+
+#player-column {
+    display: flex;
+    height: 50vw;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.lobby-label {
+    margin: 1vw;
+    color: brown;
+    font-family: cursive;
+    font-size: 10vw;
+}
+
+.lobby-label.ready {
+    color: rgba( 0, 60, 28, 1);
+}
+
+
 /*
 @media only screen and (max-width:1000px) {
     #game-wrapper {

@@ -49,33 +49,40 @@ function animateHandsFull() {
 }
 
 function startGame(data) {
-    ingame.show();
-    let playerString = '';
-    for (const [player, choice] of Object.entries(data)) {
-        playerString = playerString + `
-        <div class="player-box">
-        <div class="img-wrapper"><div class="animated-frame"><img src=${IMAGE_PATH}${choice}.png></div></div>
-        <div class="player-label">${player}</div>
-        </div>`
-    }
-    $('#player-list').innerHTML = playerString;
+    display.show('ingame');
+    ingame.setupPlayerList(data);
+}
 
-    animateHandsFull();
+function startLobby(data) {
+    lobby.setupPlayerColumn(data);
 }
 
 createConnection();
-
-socket.on('invitation-sent', function(userName, userId) {
-    console.log(`${userName} wants to play with you! (userid:${userId})`);
-});
 
 socket.on('inform', (message) => {
     console.log(message);
 });
 
+socket.on('start_game', (data) => {
+    console.log('the game can start');
+    startGame(data);
+});
+
+socket.on('lobby_update', (data) => {
+    lobby.setupPlayerColumn(data);
+})
+
 function playRandom() {
     console.log('wanna play random')
     socket.emit('request_random_game');
+}
+
+function sendReady(bool) {
+    if (bool) {
+        socket.emit('ready');
+    } else {
+        socket.emit('unready');
+    }
 }
 
 //  after entering a room name
@@ -94,6 +101,7 @@ const bar = {
     },
     accept: () => {
         playFriend($('#player-input').value, $('#name-input').value);
+        display.show('lobby');
     },
     decline: () => {
         roomInput.deleteContent();
@@ -174,36 +182,76 @@ const playerInput = {
     }
 }
 
-const ingame = {
-    show: function() {
-        $('#ingame').classList.remove('hide');
+
+
+const display = {
+    show: function(area) {
+        // hide everything
         $('#main-menu').classList.add('hide');
-    },
-    hide: function() {
         $('#ingame').classList.add('hide');
-        $('#main-menu').classList.remove('hide');
+        $('#lobby').classList.add('hide');
+        $(`#${area}`).classList.remove('hide');
+
+
+    },
+}
+
+const ingame = {
+    setupPlayerList: function(data) {
+        let playerString = '';
+        for (const [player, choice] of Object.entries(data)) {
+            playerString = playerString + `
+            <div class="player-box">
+            <div class="img-wrapper"><div class="animated-frame"><img src=${IMAGE_PATH}${choice}.png></div></div>
+            <div class="player-label">${player}</div>
+            </div>`
+        }
+        $('#player-list').innerHTML = playerString;
+    },
+    startTurn: function(data) {
+        // give object with {player:choice}
+        animateHandsFull();
     }
 
 }
 
-
-
-function accept() {
-    console.log('accept');
+const lobby = {
+    setupPlayerColumn: function(data) {
+        let playerString = '';
+        for (const [player, statuscode] of Object.entries(data)) {
+            if (statuscode) {
+                playerString = playerString + `
+                <div class="lobby-label ready">${player}</div>`
+            } else {
+                playerString = playerString + `
+                <div class="lobby-label">${player}</div>`
+            }
+        }
+        $('#player-column').innerHTML = playerString;
+    },
+    toggleReady: function() {
+        console.log('toggling');
+        lobby.setReady($('.get-ready').classList.contains('ready'));
+    },
+    setReady: function(bool) {
+        if (bool) {
+            $('.get-ready').classList.remove('ready');
+            sendReady(true);
+        } else {
+            $('.get-ready').classList.add('ready');
+            sendReady(false);
+        }
+    }
 }
-
-function decline() {
-    console.log('decline');
-}
-
 
 function onPageLoad() {
     roomInput.deleteContent();
     playerInput.deleteContent();
     // data
     let playerData = {
-        john: 'scissors',
-        stefan: 'rock'
+        john: true,
+        stefan: false,
+        marko: true,
     }
     startGame(playerData);
 
@@ -228,6 +276,9 @@ $('#decline').addEventListener('click', bar.decline);
 // main menu button functionality
 $('#play-random').addEventListener('click', playRandom);
 $('#play-friend').addEventListener('click', roomInput.toggle);
+
+// lobby ready toggle button
+$('.get-ready').addEventListener('click', lobby.toggleReady);
 
 localStorage.debug = 'socket.io-client:socket';
 
